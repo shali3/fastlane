@@ -16,7 +16,7 @@ module Spaceship
     # Legacy support
     ITunesConnectError = Tunes::Error
     ITunesConnectTemporaryError = Tunes::TemporaryError
-    ITunesConnectPotentialServerError = Tunes::PotentialServerError
+    ITunesConnectFlakyCallPotentialServerError = Tunes::PotentialServerError
 
     attr_reader :du_client
 
@@ -227,7 +227,7 @@ module Spaceship
         elsif errors.count == 1 && errors.first.include?("Forbidden")
           raise_insufficient_permission_error!
         elsif flaky_api_call
-          raise ITunesConnectPotentialServerError.new, errors.join(' ')
+          raise ITunesConnectFlakyCallPotentialServerError.new, errors.join(' ')
         else
           raise ITunesConnectError.new, errors.join(' ')
         end
@@ -1444,7 +1444,7 @@ module Spaceship
         retry
       end
       raise ex # re-raise the exception
-    rescue Spaceship::TunesClient::ITunesConnectPotentialServerError => ex
+    rescue Spaceship::TunesClient::ITunesConnectFlakyCallPotentialServerError => ex
       seconds_to_sleep = 10
       unless (potential_server_error_tries -= 1).zero?
         msg = "Potential server error received: '#{ex.message}'. Retrying after 10 seconds (remaining: #{potential_server_error_tries})..."

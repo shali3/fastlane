@@ -641,7 +641,7 @@ describe Spaceship::AppVersion, all: true do
         @times_called = 0
         allow(client).to receive(:handle_itc_response) do |data|
           @times_called += 1
-          raise Spaceship::TunesClient::ITunesConnectPotentialServerError, "simulated try again" if @times_called <= nb_failures
+          raise Spaceship::TunesClient::ITunesConnectFlakyCallPotentialServerError, "simulated try again" if @times_called <= nb_failures
           update_success_data
         end
         # arbitrary stub to prevent mock network failures. We override itc_response
@@ -676,7 +676,7 @@ describe Spaceship::AppVersion, all: true do
 
         expect do
           version.save!
-        end.to raise_error(Spaceship::TunesClient::ITunesConnectPotentialServerError)
+        end.to raise_error(Spaceship::TunesClient::ITunesConnectFlakyCallPotentialServerError)
         expect(@times_called).to eq(3)
       end
     end
